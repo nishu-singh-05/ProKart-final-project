@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -44,25 +43,27 @@ public class FeedbackService {
     }
 
 
-    public Feedback getFeedbackByCustomerEmailId(String customerEmailId) {
-        return feedbackRepository.findByCustomerEmailId(customerEmailId);
+    public List<Feedback> getFeedbackByCustomerEmailId(String customerEmailId) {
+        List<Feedback> customer=feedbackRepository.findByCustomerEmailId(customerEmailId);
+        return customer;
     }
 
 
-    public Feedback getFeedbackByCreatedAt(LocalDate createdAt) {
+    public List<Feedback> getFeedbackByCreatedAt(LocalDate createdAt) {
         return feedbackRepository.findByCreatedAt(createdAt);
     }
 
 
     public Feedback getFeedbackByQueryStatus(QueryStatus queryStatus) {
+
         return feedbackRepository.findByQueryStatus(queryStatus);
     }
 
     //update for selller
 
-    public Feedback updateProduct(Feedback feedback)
+    public Feedback updateFeedback(Feedback feedback)
     {
-        Feedback update=feedbackRepository.findById(feedback.getQueryId()).orElseThrow(() -> new ResourceNotFoundException("User not found "));
+        Feedback update=feedbackRepository.findById(feedback.getQueryId()).orElseThrow(() -> new ResourceNotFoundException("ID not found "));
         update.setQueryStatus(feedback.getQueryStatus());
         update.setSellerResolution(feedback.getSellerResolution());
 
@@ -73,6 +74,7 @@ public class FeedbackService {
     //for customer
 
     public Boolean removeQuery(String queryId) {
+        Feedback check=feedbackRepository.findById(queryId).orElseThrow(() -> new ResourceNotFoundException("ID not found "));
         feedbackRepository.deleteById(queryId);
         if (feedbackRepository.findById(queryId).isPresent()) {
             return false;

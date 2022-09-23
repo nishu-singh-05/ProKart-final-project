@@ -63,6 +63,7 @@ public class SellerService {
     }
 
     public Boolean removeSeller(String sellerEmailId) {
+        Seller check=sellerRepository.findById(sellerEmailId).orElseThrow(() -> new ResourceNotFoundException("User not found "));
         sellerRepository.deleteById(sellerEmailId);
         if(sellerRepository.findById(sellerEmailId).isPresent()) {
             return false;

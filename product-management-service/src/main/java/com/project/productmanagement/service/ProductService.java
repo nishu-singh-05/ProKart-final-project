@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
 
     @Autowired
     ProductRepository productRepository;
+    double price;
 
 
 
@@ -27,8 +27,8 @@ public class ProductService {
             return productRepository.save(product);
         }
         else
-            throw new AlreadyExistsException(
-                    "Product already exists!!");
+            throw new AlreadyExistsException("Product already exists!!");
+
     }
 
 
@@ -38,21 +38,30 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Optional<Product> getProductById(String productId) {
-        return productRepository.findById(productId);
+    public Product getProductById(String productId) {
+        return productRepository.findById(productId).get();
     }
 
     public Product getProductByName(String productName) {
         return productRepository.findByProductName(productName);
     }
 
-    public Product getProductByCategoryName(String productCategoryName) {
+    public  List<Product> getProductByCategoryName(String productCategoryName) {
         return productRepository.findByProductCategoryName(productCategoryName);
     }
 
 
-    public Product getProductByNameAndPriceAndCategory(String productName,double productPrice,String productCategoryName) {
-        return productRepository.findByProductNameAndProductPriceAndProductCategoryName(productName, productPrice, productCategoryName);
+    public List<Product> getProductByNameAndPriceAndCategory(String productName,double min,double max,String productCategoryName) {
+        List<Product> price=productRepository.findByProductNameAndProductCategoryName(productName, productCategoryName);
+        List<Product> newlist= new ArrayList<>();
+
+        for (Product productsVar : price) {
+            if(productsVar.getProductPrice()>= min && productsVar.getProductPrice()<= max){
+                newlist.add(productsVar);
+            }
+        }
+        return newlist;
+
     }
 
         public List<Product> filterByPrice(double min,double max){
@@ -73,7 +82,7 @@ public class ProductService {
 
     public Product updateProduct(Product product)
     {
-        Product update=productRepository.findById(product.getProductId()).orElseThrow(() -> new ResourceNotFoundException("User not found "));
+        Product update=productRepository.findById(product.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Product not found!! "));
         update.setProductName(product.getProductName());
         update.setProductDescription(product.getProductDescription());
         update.setProductPrice(product.getProductPrice());
@@ -87,6 +96,7 @@ public class ProductService {
     }
 
     public Boolean removeProduct(String productId) {
+        Product check=productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found!! "));
         productRepository.deleteById(productId);
         if (productRepository.findById(productId).isPresent()) {
             return false;

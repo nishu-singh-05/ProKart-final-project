@@ -65,6 +65,7 @@ public class CustomerService {
     }
 
     public Boolean removeCustomer(String customerEmailId) {
+        Customer check=customerRepository.findById(customerEmailId).orElseThrow(() -> new ResourceNotFoundException("User not found "));
         customerRepository.deleteById(customerEmailId);
         if(customerRepository.findById(customerEmailId).isPresent()) {
             return false;

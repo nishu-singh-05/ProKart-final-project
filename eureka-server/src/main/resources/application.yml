@@ -1,5 +1,7 @@
 server:
-  port: 8098
-spring:
-  application:
-    name: EUREKA_SERVER
+  port: 8761
+
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false

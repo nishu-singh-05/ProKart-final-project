@@ -5,42 +5,53 @@ import com.project.feedbackservice.FeedbackService;
 import com.project.feedbackservice.exception.AlreadyExistsException;
 import com.project.feedbackservice.exception.ResourceNotFoundException;
 import com.project.feedbackservice.model.Feedback;
+import com.project.feedbackservice.model.QueryStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/feedback")
 public class FeedbackController {
 
     @Autowired
     FeedbackService feedbackService;
 
+    //registering new query-customer
+
     @PostMapping("/newRequest")
     public ResponseEntity addQuery(@RequestBody Feedback feedback) {
+        ResponseEntity responseEntity;
         try {
 
-            return new ResponseEntity<>(feedbackService.createQuery(feedback), HttpStatus.CREATED);
+            responseEntity= new ResponseEntity<>(feedbackService.createQuery(feedback), HttpStatus.CREATED);
         }
         catch (AlreadyExistsException alreadyExistsException){
-            return new ResponseEntity("Product register new query",HttpStatus.CONFLICT);
+            responseEntity= new ResponseEntity("Register new query",HttpStatus.CONFLICT);
         }
+        return responseEntity;
     }
+
+    //search for queries-seller
 
     @GetMapping("searchAllQueries")
     public ResponseEntity<List> getAllQuery() {
         return new ResponseEntity<List>(feedbackService.getListOfFeedback(), HttpStatus.OK);
     }
 
+    //search by queryID-seller/customer
+
 
     @GetMapping("searchByQueryId/{queryId}")
     public ResponseEntity searchByName(@PathVariable String queryId){
         ResponseEntity responseEntity;
         try {
-           responseEntity=new ResponseEntity<>(feedbackService.getFeedbackByQueryId(queryId), HttpStatus.FOUND);
+           responseEntity=new ResponseEntity<>(feedbackService.getFeedbackByQueryId(queryId), HttpStatus.OK);
 
         }
         catch (ResourceNotFoundException resourceNotFoundException){
@@ -49,74 +60,61 @@ public class FeedbackController {
         return responseEntity;
     }
 
+    //search by productID-seller/customer
+
     @GetMapping("searchByProductId/{productId}")
     public ResponseEntity searchByProductId(@PathVariable String productId){
-        return new ResponseEntity<>(feedbackService.getFeedbackByProductId(productId), HttpStatus.FOUND);
+        return new ResponseEntity<>(feedbackService.getFeedbackByProductId(productId), HttpStatus.OK);
     }
+
+    //search by customer email-ID-customer
 
     @GetMapping("searchByCustomerEmailId/{customerEmailId}")
     public ResponseEntity searchByCustomerEmailId(@PathVariable String customerEmailId){
-        return new ResponseEntity<>(feedbackService.getFeedbackByCustomerEmailId(customerEmailId), HttpStatus.FOUND);
+        return new ResponseEntity<>(feedbackService.getFeedbackByCustomerEmailId(customerEmailId), HttpStatus.OK);
     }
 
+    //search by created date-seller/customer
+
     @GetMapping("searchByDate/{createdAt}")
-    public ResponseEntity searchByDate(@PathVariable String customerEmailId){
-        return new ResponseEntity<>(feedbackService.getFeedbackByCustomerEmailId(customerEmailId), HttpStatus.FOUND);
+    public ResponseEntity searchByDate(@PathVariable ("createdAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate createdAt){
+        return new ResponseEntity<>(feedbackService.getFeedbackByCreatedAt(createdAt), HttpStatus.OK);
     }
+
+    //search by query status-seller/customer
+
+    @GetMapping("searchByStatus/{queryStatus}")
+    public ResponseEntity searchByQueryStatus(@PathVariable QueryStatus queryStatus){
+        return new ResponseEntity<>(feedbackService.getFeedbackByQueryStatus(queryStatus), HttpStatus.OK);
+    }
+
+    //to update query-seller
+
+    @PutMapping("/updateQuery")
+    private ResponseEntity updateQuery(@RequestBody Feedback feedback) throws ResourceNotFoundException
+    {
+        ResponseEntity responseEntity;
+        try {
+
+            responseEntity= ResponseEntity.ok(feedbackService.updateFeedback(feedback));
+        }
+        catch (ResourceNotFoundException resourceNotFoundException){
+            responseEntity= new ResponseEntity("Query not found with the id"+ feedback.getQueryId() ,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return responseEntity;
+
+    }
+
+    //deleting query--seller/customer
+
+
+    @DeleteMapping("/deleteQuery/{queryId}")
+    public ResponseEntity deleteQuery(@PathVariable String queryId) {
+        return ResponseEntity.ok(feedbackService.removeQuery(queryId)) ;
+    }
+
 
 
 
 }
 
-  /*  @Autowired
-    ProductService productService;
-
-
-
-
-
-    @GetMapping("/customer/searchProductsByName/{productName}")
-    public ResponseEntity searchByName(@PathVariable String productName){
-        return new ResponseEntity<>(productService.getProductByName(productName), HttpStatus.FOUND);
-    }
-
-   @GetMapping("/searchProductsByCategory/{productCategoryName}")
-    public ResponseEntity searchByCategory(@PathVariable String productCategoryName) {
-       return new ResponseEntity<>(productService.getProductByCategoryName(productCategoryName), HttpStatus.FOUND);
-   }
-
-    @GetMapping("/searchProductsByPrice/{min}/{max}")
-    public ResponseEntity searchByPrice(@PathVariable double min,@PathVariable double max){
-        return new ResponseEntity<>(productService.filterByPrice( min, max), HttpStatus.FOUND);
-    }
-
-
-    @GetMapping("/searchProductByNameAndPriceAndCategory/{productName}/{productPrice}/{productCategoryName}")
-    public ResponseEntity searchByNameCategoryPrice(@PathVariable String productName,@PathVariable double productPrice,@PathVariable String productCategoryName) {
-        return new ResponseEntity<>(productService.getProductByNameAndPriceAndCategory(productName,productPrice,productCategoryName), HttpStatus.FOUND);
-    }
-
-
-
-    @PutMapping("/updateProduct/{productId}")
-    private ResponseEntity update(@RequestBody Product product, @PathVariable String productId) throws ResourceNotFoundException
-    {
-        try {
-
-            return ResponseEntity.ok(productService.updateProduct(product));
-        }
-        catch (ResourceNotFoundException resourceNotFoundException){
-            return new ResponseEntity("Product not found with the id"+ productId ,HttpStatus.CONFLICT);
-        }
-
-    }
-
-    @DeleteMapping("/deleteProduct/{productId}")
-    public ResponseEntity deleteCustomer(@PathVariable String productId) {
-        return ResponseEntity.ok(productService.removeProduct(productId)) ;
-    }
-
-
-
-
-}*/

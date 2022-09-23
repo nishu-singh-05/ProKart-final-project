@@ -19,6 +19,7 @@ import java.time.LocalDate;
 public class Feedback {
 
     @Id
+    @Generated
     private String queryId ;
     private String queryDescription;
     private String productId;

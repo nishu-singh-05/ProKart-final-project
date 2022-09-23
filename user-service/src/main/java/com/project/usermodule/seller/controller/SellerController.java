@@ -20,33 +20,45 @@ public class SellerController {
     @Autowired
     SellerService sellerService;
 
+    //registering new seller
+
     @PostMapping("/newSeller/{password}")
     public ResponseEntity  addNewSeller(@RequestBody Seller seller, @PathVariable String password) {
         return new ResponseEntity(sellerService.createSeller(seller, password),HttpStatus.CREATED);
 
     }
 
+    //list of sellers
+
     @GetMapping("/searchAllSeller")
     public ResponseEntity<List> getSellers() {
         return new ResponseEntity<List>(sellerService.getAllSeller(), HttpStatus.OK);
     }
+
+    //search by seller email-id
 
     @GetMapping("/searchSellerByID/{sellerEmailId}")
         public ResponseEntity getSellerById(@PathVariable String sellerEmailId) throws ResourceNotFoundException {
             return new ResponseEntity(sellerService.getSeller(sellerEmailId), HttpStatus.OK);
     }
 
+    //search by seller name
+
     @GetMapping("/searchSellerByName/{sellerName}")
     public ResponseEntity searchByName(@PathVariable String sellerName){
-       return new ResponseEntity<>(sellerService.findBySellerName(sellerName), HttpStatus.FOUND);
+       return new ResponseEntity<>(sellerService.findBySellerName(sellerName), HttpStatus.OK);
     }
 
-    @PutMapping("/updateSeller/{sellerEmailId}")
-    private ResponseEntity update(@RequestBody Seller seller, @PathVariable String sellerEmailId) throws ResourceNotFoundException
+    // To update seller
+
+    @PutMapping("/updateSeller")
+    private ResponseEntity update(@RequestBody Seller seller) throws ResourceNotFoundException
     {
         return ResponseEntity.ok(sellerService.updateSeller(seller));
 
     }
+
+    //For deleting seller
 
     @DeleteMapping("/deleteSeller/{sellerEmailId}")
     public ResponseEntity deleteSeller(@PathVariable String sellerEmailId) {

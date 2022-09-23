@@ -3,16 +3,15 @@ package com.project.authenticationservice.controller;
 
 
 import com.project.authenticationservice.jwtUtil.JwtUtil;
-import com.project.authenticationservice.model.AuthRequest;
 import com.project.authenticationservice.model.UserServiceData;
 import com.project.authenticationservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/auth")
 public class SecurityController {
 
 
@@ -20,30 +19,26 @@ public class SecurityController {
     private JwtUtil jwtUtil;
 
     @Autowired
-    UserRepository userRepository;
-
-   /* @Autowired
-    private AuthenticationManager authenticationManager;
-*/
-    @GetMapping("/")
-    public String welcome() {
-        return "Welcome to Spring Security";
-    }
+    private UserRepository userRepository;
 
     @PostMapping("/authenticate")
-    public String generateToken(@RequestBody UserServiceData userServiceData) throws Exception{
-        try{
+    public ResponseEntity generateToken(@RequestBody UserServiceData userServiceData) throws Exception{
+        UserServiceData user=userRepository.findByUserNameAndPasswordAndRole(userServiceData.getUserName(), userServiceData.getPassword(), userServiceData.getRole());
 
-            userRepository.findById(userServiceData.getUserName());
-           /* authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getUserName(),authRequest.getPassword()
-                    ));*/
+        ResponseEntity response;
+
+        if (user!=null){
+
+            response = new ResponseEntity(jwtUtil.generateToken(userServiceData.getUserName(),userServiceData.getPassword(), userServiceData.getRole()), HttpStatus.OK);
+
+
         }
-        catch (Exception e) {
-            throw  new Exception("Invalid username/password");
+       else  {
+            response = new ResponseEntity("Invalid Username /Password",HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
 
-        return jwtUtil.generateToken(userServiceData.getUserName());
+        return  response;
 
     }
 }
