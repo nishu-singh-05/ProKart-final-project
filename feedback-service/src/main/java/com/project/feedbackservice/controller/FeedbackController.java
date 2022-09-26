@@ -1,7 +1,7 @@
 package com.project.feedbackservice.controller;
 
 
-import com.project.feedbackservice.FeedbackService;
+import com.project.feedbackservice.service.FeedbackService;
 import com.project.feedbackservice.exception.AlreadyExistsException;
 import com.project.feedbackservice.exception.ResourceNotFoundException;
 import com.project.feedbackservice.model.Feedback;

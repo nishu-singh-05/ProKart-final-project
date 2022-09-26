@@ -7,14 +7,18 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FeedbackRepository extends MongoRepository<Feedback, String> {
 
-    Feedback findByProductId(String productId);
+    @Override
+    Optional<Feedback> findById(String s);
+
+    List<Feedback> findByProductId(String productId);
     List<Feedback> findByCustomerEmailId(String customerEmailId);
     List<Feedback> findByCreatedAt(LocalDate createdAt);
-    Feedback findByQueryStatus( QueryStatus queryStatus);
+    List<Feedback> findByQueryStatus( QueryStatus queryStatus);
 
 
 
